@@ -1,0 +1,10 @@
+.webcam-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  margin: 20px auto;
+  max-width: 680px;
+}
