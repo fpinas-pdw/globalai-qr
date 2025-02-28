@@ -11,9 +11,8 @@ const container = database.container(import.meta.env.VITE_COSMOS_CONTAINER)
 export const saveToCosmosDB = async (company: string, qrData: string) => {
   try {
     await container.items.create({
-      company,
-      qrData,
-      timestamp: new Date().toISOString(),
+      id: qrData,
+      companyName: company, 
     })
   } catch (error) {
     console.error('Error saving to CosmosDB:', error)
