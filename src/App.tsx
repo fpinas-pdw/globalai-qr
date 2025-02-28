@@ -102,7 +102,7 @@ const App: React.FC = () => {
     <Container fluid className="fixed inset-0">
       {isSavingInCosmos?"Guardando":"No Guardando"} -- {result}
       {/* Contenedor de la cámara */}
-      <Row className="flex-grow-1">
+      <Row className="d-flex align-items-center">
         <Col xs={12} className="text-center p-0" id="qr-camera" onClick={() => stopScanning()}></Col>
       </Row>
       {!isScanning && (
