@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode, Html5QrcodeCameraScanConfig } from "html5-qrcode";
 import logoImage from './assets/global_header.png';
 import { Container, Row, Col, Button, Form } from 'react-bootstrap';
-import { saveToCosmosDB } from "./services/cosmosDB";
+import CosmosService from "./services/CosmosService";
 
 const App: React.FC = () => {
   const [result, setResult] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
-  const [isSavingInCosmos, setIsSavingInCosmos ] =useState<boolean>(false);
+  const [isSavingInCosmos, setIsSavingInCosmos] = useState<boolean>(false);
+  const [confirmMessage, setConfirmMessage] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const cameraIdRef = useRef<string | null>(null);
   const companies = JSON.parse(import.meta.env.VITE_COMPANIES)
@@ -42,17 +43,20 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log("---------------------------------");
     if (result && selectedCompany && !isSavingInCosmos) {
       setIsSavingInCosmos(true);
-      console.log("------------------------------22222");
       const saveResult = async () => {
         try {
-          await saveToCosmosDB(result, selectedCompany);
+          const uniqueId = crypto.randomUUID();
+          await CosmosService.pushData({
+            id: uniqueId,
+            userId: result,
+            name: selectedCompany,
+          });
           console.log("Resultado guardado en Cosmos DB");
         } catch (error) {
           console.error("Error guardando el resultado en Cosmos DB:", error);
-        }finally{
+        } finally {
           setResult(null);
           setIsSavingInCosmos(true);
         }
@@ -62,6 +66,14 @@ const App: React.FC = () => {
     }
   }, [result, selectedCompany]);
 
+  useEffect(() => {
+    if (isSavingInCosmos) {
+      setConfirmMessage("Guardando en DB...");
+      setTimeout(() => {
+        setConfirmMessage(null);
+      }, 1000);
+    }
+  }, [isSavingInCosmos]);
   const startScanning = async () => {
     if (!scannerRef.current || !cameraIdRef.current || isScanning) return;
 
@@ -100,7 +112,6 @@ const App: React.FC = () => {
 
   return (
     <Container fluid className="fixed inset-0">
-      {isSavingInCosmos?"Guardando":"No Guardando"} -- {result}
       {/* Contenedor de la cámara */}
       <Row className="d-flex align-items-center">
         <Col xs={12} className="text-center p-0" id="qr-camera" onClick={() => stopScanning()}></Col>
@@ -140,18 +151,13 @@ const App: React.FC = () => {
                   }
                 }}
                 variant="primary"
-                disabled = {isScanning || isSavingInCosmos || !selectedCompany}
+                disabled={isScanning || isSavingInCosmos || !selectedCompany}
               >
                 Escanear
               </Button>
             </Col>
-          </Row>
-
-          {/* Resultado */}
-          <Row>
-            <Col xs={12} className="text-center">
-              {isScanning ? "Escaneando..." : null}
-              {result && <p className="mt-4 font-semibold text-green-600">Resultado: {result}</p>}
+            <Col xs={12} className="text-center mt-4 text-success">
+              {confirmMessage && <p>{confirmMessage}</p>}
             </Col>
           </Row>
         </>
