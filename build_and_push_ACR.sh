@@ -4,7 +4,7 @@
 acrName="acrcopilotcspfpinas"
 acrLoginServer="$acrName.azurecr.io"
 imageName="globalai-qr-reader"
-imageTag="1.0"
+imageTag="0.9"
 fullImageName="${acrLoginServer}/${imageName}:${imageTag}"
 
 # Iniciar sesión en Azure

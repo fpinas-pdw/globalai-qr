@@ -58,7 +58,7 @@ const App: React.FC = () => {
           console.error("Error guardando el resultado en Cosmos DB:", error);
         } finally {
           setResult(null);
-          setIsSavingInCosmos(true);
+          setIsSavingInCosmos(false);
         }
       };
 
